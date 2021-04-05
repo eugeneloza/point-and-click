@@ -1,0 +1,17 @@
+# Files ignored by GIT version control
+
+# Build tool (and compiler) temporary output
+castle-engine-output
+
+*.dll
+*.lps
+*.res
+backup
+
+# Unix executable
+point-and-click
+# Windows executable
+point-and-click.exe
+
+# May contain secret data (your Android keystore username and password)
+AndroidAntProperties.txt
