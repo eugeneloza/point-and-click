@@ -37,6 +37,7 @@ type
     Hero: THero;
   public
     procedure Start; override;
+    procedure Stop; override;
     procedure Update(const SecondsPassed: Single; var HandleInput: Boolean); override;
     function Press(const Event: TInputPressRelease): Boolean; override;
   end;
@@ -119,6 +120,12 @@ begin
 
   { Find components, by name, that we need to access from code }
   LabelFps := UiOwner.FindRequiredComponent('LabelFps') as TCastleLabel;
+end;
+
+procedure TStateMain.Stop;
+begin
+  FreeAndNil(MoveMap);
+  inherited;
 end;
 
 procedure TStateMain.Update(const SecondsPassed: Single; var HandleInput: Boolean);
