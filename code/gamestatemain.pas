@@ -36,7 +36,9 @@ type
     MoveMap: TGrayscaleImage;
     Hero: THero;
   public
+    constructor Create(AOwner: TComponent); override;
     procedure Start; override;
+    procedure Stop; override;
     procedure Update(const SecondsPassed: Single; var HandleInput: Boolean); override;
     function Press(const Event: TInputPressRelease): Boolean; override;
   end;
@@ -102,23 +104,32 @@ end;
 
 { TStateMain ----------------------------------------------------------------- }
 
+constructor TStateMain.Create(AOwner: TComponent);
+begin
+  inherited;
+  DesignUrl := 'castle-data:/gamestatemain.castle-user-interface';
+end;
+
 procedure TStateMain.Start;
-var
-  UiOwner: TComponent;
 begin
   inherited;
 
   { Load designed user interface }
-  InsertUserInterface('castle-data:/gamestatemain.castle-user-interface', FreeAtStop, UiOwner);
   MoveMap := LoadImage('castle-data:/pompeii-ruins-1430653165OsX_CC0_by_Svetlana_Tikhonova_[zmap].png', [TGrayscaleImage]) as TGrayscaleImage;
-  Background := UiOwner.FindRequiredComponent('Background') as TCastleScene;
+  Background := DesignedComponent('Background') as TCastleScene;
 
   Hero := THero.Create(FreeAtStop);
-  Hero.Scene := UiOwner.FindRequiredComponent('Hero') as TCastleScene;
+  Hero.Scene := DesignedComponent('Hero') as TCastleScene;
   Hero.Destination := Hero.GetOrigin;
 
   { Find components, by name, that we need to access from code }
-  LabelFps := UiOwner.FindRequiredComponent('LabelFps') as TCastleLabel;
+  LabelFps := DesignedComponent('LabelFps') as TCastleLabel;
+end;
+
+procedure TStateMain.Stop;
+begin
+  FreeAndNil(MoveMap);
+  inherited;
 end;
 
 procedure TStateMain.Update(const SecondsPassed: Single; var HandleInput: Boolean);
@@ -145,15 +156,20 @@ begin
   Result := inherited;
   if Result then Exit; // allow the ancestor to handle keys
 
-  // Check if MoveMap has this pixel - we encode "z" coordinate of the player as this pixel color
-  MoveMapResult := -1;
-  if (ClickToMap.X >= 0) and (ClickToMap.X < MoveMap.Width) and
-     (ClickToMap.Y >= 0) and (ClickToMap.Y < MoveMap.Height) then
-       MoveMapResult := MoveMap.PixelPtr(ClickToMap.X, ClickToMap.Y)^;
+  if Event.IsMouseButton(buttonLeft) then
+  begin
+    // Check if MoveMap has this pixel - we encode "z" coordinate of the player as this pixel color
+    MoveMapResult := -1;
+    if (ClickToMap.X >= 0) and (ClickToMap.X < MoveMap.Width) and
+       (ClickToMap.Y >= 0) and (ClickToMap.Y < MoveMap.Height) then
+         MoveMapResult := MoveMap.PixelPtr(ClickToMap.X, ClickToMap.Y)^;
 
-  // If move is allowed
-  if MoveMapResult > 5 then
-    Hero.Destination := Vector3(Container.MousePosition / Self.UIScale, MoveMapResult) - Background.Translation;
+    // If move is allowed
+    if MoveMapResult > 5 then
+      Hero.Destination := Vector3(Container.MousePosition / Self.UIScale, MoveMapResult) - Background.Translation;
+
+    Exit(true);
+  end;
 end;
 
 end.
