@@ -152,15 +152,20 @@ begin
   Result := inherited;
   if Result then Exit; // allow the ancestor to handle keys
 
-  // Check if MoveMap has this pixel - we encode "z" coordinate of the player as this pixel color
-  MoveMapResult := -1;
-  if (ClickToMap.X >= 0) and (ClickToMap.X < MoveMap.Width) and
-     (ClickToMap.Y >= 0) and (ClickToMap.Y < MoveMap.Height) then
-       MoveMapResult := MoveMap.PixelPtr(ClickToMap.X, ClickToMap.Y)^;
+  if Event.IsMouseButton(buttonLeft) then
+  begin
+    // Check if MoveMap has this pixel - we encode "z" coordinate of the player as this pixel color
+    MoveMapResult := -1;
+    if (ClickToMap.X >= 0) and (ClickToMap.X < MoveMap.Width) and
+       (ClickToMap.Y >= 0) and (ClickToMap.Y < MoveMap.Height) then
+         MoveMapResult := MoveMap.PixelPtr(ClickToMap.X, ClickToMap.Y)^;
 
-  // If move is allowed
-  if MoveMapResult > 5 then
-    Hero.Destination := Vector3(Container.MousePosition / Self.UIScale, MoveMapResult) - Background.Translation;
+    // If move is allowed
+    if MoveMapResult > 5 then
+      Hero.Destination := Vector3(Container.MousePosition / Self.UIScale, MoveMapResult) - Background.Translation;
+
+    Exit(true);
+  end;
 end;
 
 end.
