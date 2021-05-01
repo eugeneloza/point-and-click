@@ -36,6 +36,7 @@ type
     MoveMap: TGrayscaleImage;
     Hero: THero;
   public
+    constructor Create(AOwner: TComponent); override;
     procedure Start; override;
     procedure Stop; override;
     procedure Update(const SecondsPassed: Single; var HandleInput: Boolean); override;
@@ -103,23 +104,26 @@ end;
 
 { TStateMain ----------------------------------------------------------------- }
 
+constructor TStateMain.Create(AOwner: TComponent);
+begin
+  inherited;
+  DesignUrl := 'castle-data:/gamestatemain.castle-user-interface';
+end;
+
 procedure TStateMain.Start;
-var
-  UiOwner: TComponent;
 begin
   inherited;
 
   { Load designed user interface }
-  InsertUserInterface('castle-data:/gamestatemain.castle-user-interface', FreeAtStop, UiOwner);
   MoveMap := LoadImage('castle-data:/pompeii-ruins-1430653165OsX_CC0_by_Svetlana_Tikhonova_[zmap].png', [TGrayscaleImage]) as TGrayscaleImage;
-  Background := UiOwner.FindRequiredComponent('Background') as TCastleScene;
+  Background := DesignedComponent('Background') as TCastleScene;
 
   Hero := THero.Create(FreeAtStop);
-  Hero.Scene := UiOwner.FindRequiredComponent('Hero') as TCastleScene;
+  Hero.Scene := DesignedComponent('Hero') as TCastleScene;
   Hero.Destination := Hero.GetOrigin;
 
   { Find components, by name, that we need to access from code }
-  LabelFps := UiOwner.FindRequiredComponent('LabelFps') as TCastleLabel;
+  LabelFps := DesignedComponent('LabelFps') as TCastleLabel;
 end;
 
 procedure TStateMain.Stop;
